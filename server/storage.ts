@@ -6,8 +6,11 @@ import {
   feedback, type Feedback, type InsertFeedback,
   notifications, type Notification, type InsertNotification
 } from "@shared/schema";
-import createMemoryStore from "memorystore";
+import { db, connectToMongo, connectToMySql, sitecoreService, pool } from "./db";
+import { eq, and } from "drizzle-orm";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
+import createMemoryStore from "memorystore";
 
 // Storage interface 
 export interface IStorage {
@@ -46,11 +49,311 @@ export interface IStorage {
   markNotificationAsRead(id: number): Promise<Notification>;
 
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // The type for session store
 }
 
+// PostgreSQL session store
+const PostgresSessionStore = connectPg(session);
 const MemoryStore = createMemoryStore(session);
 
+// Database storage implementation that uses multiple databases as required
+export class DatabaseStorage implements IStorage {
+  sessionStore: any; // Using any for session store
+
+  constructor() {
+    // Use PostgreSQL for session store
+    try {
+      const pgPool = pool;
+      this.sessionStore = new PostgresSessionStore({ 
+        pool: pgPool,
+        createTableIfMissing: true 
+      });
+      console.log("Using PostgreSQL for session store");
+    } catch (error) {
+      console.error("Failed to initialize PostgreSQL session store, falling back to memory store", error);
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000, // prune expired entries every 24h
+      });
+    }
+    
+    // Initialize connections
+    this.initConnections();
+  }
+
+  private async initConnections() {
+    try {
+      // Connect to MongoDB and MySQL
+      await connectToMongo();
+      await connectToMySql();
+    } catch (error) {
+      console.error("Error initializing database connections:", error);
+    }
+  }
+
+  // User methods (using PostgreSQL with Drizzle ORM)
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+  
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+  
+  async updateUserPreferences(id: number, preferences: any): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        preferences: {
+          ...preferences
+        } 
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+  
+  // Events methods (using MySQL)
+  async getEvents(): Promise<Event[]> {
+    try {
+      const mysqlPool = await connectToMySql();
+      const [rows] = await mysqlPool.query('SELECT * FROM events ORDER BY start_date');
+      return rows as Event[];
+    } catch (error) {
+      console.error("Error fetching events from MySQL:", error);
+      // Fallback to PostgreSQL
+      return db.select().from(events).orderBy(events.startDate);
+    }
+  }
+  
+  async getEvent(id: number): Promise<Event | undefined> {
+    try {
+      const mysqlPool = await connectToMySql();
+      const [rows] = await mysqlPool.query('SELECT * FROM events WHERE id = ?', [id]);
+      const eventRows = rows as Event[];
+      return eventRows.length > 0 ? eventRows[0] : undefined;
+    } catch (error) {
+      console.error("Error fetching event from MySQL:", error);
+      // Fallback to PostgreSQL
+      const [event] = await db.select().from(events).where(eq(events.id, id));
+      return event || undefined;
+    }
+  }
+  
+  async createEvent(insertEvent: InsertEvent): Promise<Event> {
+    // First, check for content in Sitecore if it's a managed event
+    try {
+      await sitecoreService.getContent(`/events/${insertEvent.title}`);
+    } catch (error) {
+      console.log("Event not found in Sitecore, continuing with database insert");
+    }
+    
+    // Insert into MySQL
+    try {
+      const mysqlPool = await connectToMySql();
+      const [result] = await mysqlPool.query(
+        'INSERT INTO events (title, description, location, start_date, end_date, image_url) VALUES (?, ?, ?, ?, ?, ?)',
+        [
+          insertEvent.title,
+          insertEvent.description,
+          insertEvent.location,
+          insertEvent.startDate,
+          insertEvent.endDate,
+          insertEvent.imageUrl || null
+        ]
+      );
+      
+      const id = (result as any).insertId;
+      return {
+        ...insertEvent,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        imageUrl: insertEvent.imageUrl || null
+      };
+    } catch (error) {
+      console.error("Error creating event in MySQL:", error);
+      // Fallback to PostgreSQL
+      const [event] = await db
+        .insert(events)
+        .values(insertEvent)
+        .returning();
+      return event;
+    }
+  }
+  
+  // Attractions methods (using MongoDB)
+  async getAttractions(): Promise<Attraction[]> {
+    try {
+      const mongodb = await connectToMongo();
+      const attractions = await mongodb.collection('attractions').find({}).toArray();
+      return attractions as Attraction[];
+    } catch (error) {
+      console.error("Error fetching attractions from MongoDB:", error);
+      // Fallback to PostgreSQL
+      return db.select().from(attractions);
+    }
+  }
+  
+  async getAttraction(id: number): Promise<Attraction | undefined> {
+    try {
+      const mongodb = await connectToMongo();
+      const attraction = await mongodb.collection('attractions').findOne({ id });
+      return attraction as Attraction || undefined;
+    } catch (error) {
+      console.error("Error fetching attraction from MongoDB:", error);
+      // Fallback to PostgreSQL
+      const [attraction] = await db.select().from(attractions).where(eq(attractions.id, id));
+      return attraction || undefined;
+    }
+  }
+  
+  async createAttraction(insertAttraction: InsertAttraction): Promise<Attraction> {
+    // Check for content in Sitecore
+    try {
+      await sitecoreService.getContent(`/attractions/${insertAttraction.name}`);
+    } catch (error) {
+      console.log("Attraction not found in Sitecore, continuing with database insert");
+    }
+    
+    try {
+      const mongodb = await connectToMongo();
+      
+      // Get the next ID
+      const maxIdResult = await mongodb.collection('attractions')
+        .find({})
+        .sort({ id: -1 })
+        .limit(1)
+        .toArray();
+      
+      const nextId = maxIdResult.length > 0 ? maxIdResult[0].id + 1 : 1;
+      
+      const timestamp = new Date();
+      const attraction: Attraction = {
+        ...insertAttraction,
+        id: nextId,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        imageUrl: insertAttraction.imageUrl || null,
+        contactInfo: insertAttraction.contactInfo || null,
+        coordinates: insertAttraction.coordinates || null,
+        openingHours: insertAttraction.openingHours || null
+      };
+      
+      await mongodb.collection('attractions').insertOne(attraction);
+      return attraction;
+    } catch (error) {
+      console.error("Error creating attraction in MongoDB:", error);
+      // Fallback to PostgreSQL
+      const [attraction] = await db
+        .insert(attractions)
+        .values(insertAttraction)
+        .returning();
+      return attraction;
+    }
+  }
+  
+  // Transportation methods (using PostgreSQL)
+  async getTransportation(): Promise<Transportation[]> {
+    return db.select().from(transportation);
+  }
+  
+  async getTransportationById(id: number): Promise<Transportation | undefined> {
+    const [transport] = await db.select().from(transportation).where(eq(transportation.id, id));
+    return transport || undefined;
+  }
+  
+  async createTransportation(insertTransportation: InsertTransportation): Promise<Transportation> {
+    const [transport] = await db
+      .insert(transportation)
+      .values(insertTransportation)
+      .returning();
+    return transport;
+  }
+  
+  async updateTransportationLocation(id: number, location: { latitude: number; longitude: number }): Promise<Transportation> {
+    const [transport] = await db
+      .update(transportation)
+      .set({ 
+        currentLocation: location,
+        updatedAt: new Date()
+      })
+      .where(eq(transportation.id, id))
+      .returning();
+    return transport;
+  }
+  
+  // Feedback methods (using PostgreSQL)
+  async getAllFeedback(): Promise<Feedback[]> {
+    return db.select().from(feedback).orderBy(feedback.createdAt);
+  }
+  
+  async getUserFeedback(userId: number): Promise<Feedback[]> {
+    return db
+      .select()
+      .from(feedback)
+      .where(eq(feedback.userId, userId))
+      .orderBy(feedback.createdAt);
+  }
+  
+  async createFeedback(insertFeedback: InsertFeedback): Promise<Feedback> {
+    const [feedbackItem] = await db
+      .insert(feedback)
+      .values(insertFeedback)
+      .returning();
+    return feedbackItem;
+  }
+  
+  // Notification methods (using PostgreSQL)
+  async getUserNotifications(userId: number): Promise<Notification[]> {
+    return db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(notifications.createdAt);
+  }
+  
+  async getNotification(id: number): Promise<Notification | undefined> {
+    const [notification] = await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.id, id));
+    return notification || undefined;
+  }
+  
+  async createNotification(insertNotification: InsertNotification): Promise<Notification> {
+    const [notification] = await db
+      .insert(notifications)
+      .values(insertNotification)
+      .returning();
+    return notification;
+  }
+  
+  async markNotificationAsRead(id: number): Promise<Notification> {
+    const [notification] = await db
+      .update(notifications)
+      .set({ read: true })
+      .where(eq(notifications.id, id))
+      .returning();
+    return notification;
+  }
+}
+
+// For backward compatibility, keep the MemStorage class, but use DatabaseStorage as the default
 export class MemStorage implements IStorage {
   private usersMap: Map<number, User>;
   private eventsMap: Map<number, Event>;
@@ -59,7 +362,7 @@ export class MemStorage implements IStorage {
   private feedbackMap: Map<number, Feedback>;
   private notificationsMap: Map<number, Notification>;
   
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any for session store
   
   private userId: number;
   private eventId: number;
@@ -111,7 +414,14 @@ export class MemStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userId++;
     const timestamp = new Date();
-    const user: User = { ...insertUser, id, createdAt: timestamp };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      createdAt: timestamp,
+      name: insertUser.name || null,
+      role: insertUser.role || 'user',
+      preferences: insertUser.preferences || null
+    };
     this.usersMap.set(id, user);
     return user;
   }
@@ -150,7 +460,8 @@ export class MemStorage implements IStorage {
       ...insertEvent, 
       id, 
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
+      imageUrl: insertEvent.imageUrl || null
     };
     this.eventsMap.set(id, event);
     return event;
@@ -172,7 +483,11 @@ export class MemStorage implements IStorage {
       ...insertAttraction, 
       id, 
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
+      imageUrl: insertAttraction.imageUrl || null,
+      contactInfo: insertAttraction.contactInfo || null,
+      coordinates: insertAttraction.coordinates || null,
+      openingHours: insertAttraction.openingHours || null
     };
     this.attractionsMap.set(id, attraction);
     return attraction;
@@ -193,7 +508,13 @@ export class MemStorage implements IStorage {
     const transportation: Transportation = { 
       ...insertTransportation, 
       id, 
-      updatedAt: timestamp
+      updatedAt: timestamp,
+      status: insertTransportation.status || null,
+      route: insertTransportation.route || null,
+      currentLocation: insertTransportation.currentLocation || null,
+      capacity: insertTransportation.capacity || null,
+      nextStop: insertTransportation.nextStop || null,
+      estimatedArrival: insertTransportation.estimatedArrival || null
     };
     this.transportationMap.set(id, transportation);
     return transportation;
@@ -232,7 +553,9 @@ export class MemStorage implements IStorage {
       ...insertFeedback, 
       id, 
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
+      status: insertFeedback.status || 'pending',
+      response: insertFeedback.response || null
     };
     this.feedbackMap.set(id, feedback);
     return feedback;
@@ -255,7 +578,9 @@ export class MemStorage implements IStorage {
     const notification: Notification = { 
       ...insertNotification, 
       id, 
-      createdAt: timestamp
+      createdAt: timestamp,
+      read: insertNotification.read || false,
+      relatedId: insertNotification.relatedId || null
     };
     this.notificationsMap.set(id, notification);
     return notification;
@@ -406,4 +731,5 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use database storage instead of memory storage
+export const storage = new DatabaseStorage();
