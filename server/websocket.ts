@@ -1,88 +1,76 @@
-import { WebSocketServer, WebSocket } from "ws";
-import { Server } from "http";
-import { storage } from "./storage";
+import { Server } from 'http';
+import WebSocket, { WebSocketServer } from 'ws';
+import { storage } from './storage';
+import { Transportation } from '@shared/schema';
 
-// Define message types for WebSocket communication
 type WebSocketMessage = {
   type: string;
   payload: any;
 };
 
 export function setupWebSocketServer(httpServer: Server) {
-  // Set up WebSocket server with explicit path and additional logging
-  console.log("Setting up WebSocket server on path /ws");
+  // Create a WebSocket server instance
   const wss = new WebSocketServer({ 
     server: httpServer, 
-    path: '/ws',
-    // Add more permissive options
-    perMessageDeflate: false,
-    clientTracking: true 
+    path: '/ws'  // Make sure this is different from Vite's HMR WebSocket path
   });
+  
+  console.log('WebSocket server initialized');
 
+  // Handle new WebSocket connections
   wss.on('connection', (ws: WebSocket) => {
-    console.log('WebSocket client connected');
-
-    ws.on('message', async (message: string) => {
+    console.log('New WebSocket client connected');
+    
+    // Send initial data to client
+    sendInitialData(ws);
+    
+    // Handle incoming messages
+    ws.on('message', async (message) => {
       try {
-        const data: WebSocketMessage = JSON.parse(message);
+        const data: WebSocketMessage = JSON.parse(message.toString());
+        console.log('Received message:', data);
         
         switch (data.type) {
-          case 'SUBSCRIBE_TRANSPORTATION':
-            console.log('Client subscribed to transportation updates');
-            // Store some data to mark the client as subscribed
-            (ws as any).isSubscribedToTransportation = true;
-            // Send current transportation data immediately
-            sendInitialData(ws);
-            break;
-            
-          case 'UNSUBSCRIBE_TRANSPORTATION':
-            // No specific action needed as we'll broadcast to all clients
-            break;
-            
-          case 'UPDATE_TRANSPORTATION_LOCATION':
-            // Update transportation location (for drivers/admin)
-            if (data.payload && data.payload.id && data.payload.location) {
-              const updatedTransportation = await storage.updateTransportationLocation(
-                data.payload.id, 
+          case 'transportation_update':
+            // Handle transportation updates (from mobile apps/transportation vehicles)
+            if (data.payload.id && data.payload.location) {
+              const updatedTransport = await storage.updateTransportationLocation(
+                data.payload.id,
                 data.payload.location
               );
-              
-              // Broadcast to all connected clients
-              broadcastTransportationUpdate(wss, updatedTransportation);
+              broadcastTransportationUpdate(wss, updatedTransport);
             }
             break;
             
-          case 'PING':
-            sendMessage(ws, 'PONG', { timestamp: new Date() });
+          case 'subscribe_user_notifications':
+            // Store user ID in WebSocket client for notifications
+            (ws as any).userId = data.payload.userId;
+            // Send existing notifications to the user
+            if (data.payload.userId) {
+              const notifications = await storage.getUserNotifications(data.payload.userId);
+              sendMessage(ws, 'notifications_update', notifications);
+            }
             break;
             
           default:
-            console.log(`Unknown message type: ${data.type}`);
+            console.log('Unknown message type:', data.type);
         }
       } catch (err) {
         console.error('Error processing WebSocket message:', err);
       }
     });
-
+    
+    // Handle client disconnection
     ws.on('close', () => {
       console.log('WebSocket client disconnected');
-      // Clean up any subscriptions if needed
-      (ws as any).isSubscribedToTransportation = false;
     });
-
-    // Send initial data
-    sendInitialData(ws);
   });
-
-  // Set up scheduled updates for transportation
-  setInterval(() => {
-    simulateTransportationMovement(wss);
-  }, 10000); // Every 10 seconds
-
+  
+  // Start simulating transportation movement for demo purposes
+  simulateTransportationMovement(wss);
+  
   return wss;
 }
-
-// Helper functions
 
 function sendMessage(ws: WebSocket, type: string, payload: any) {
   if (ws.readyState === WebSocket.OPEN) {
@@ -93,50 +81,53 @@ function sendMessage(ws: WebSocket, type: string, payload: any) {
 function broadcastTransportationUpdate(wss: WebSocketServer, transportationData: any) {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      // Send the message directly instead of using emit
-      client.send(JSON.stringify({
-        type: 'TRANSPORTATION_UPDATE',
-        payload: transportationData
-      }));
+      sendMessage(client, 'transportation_update', transportationData);
     }
   });
 }
 
 async function sendInitialData(ws: WebSocket) {
   try {
-    // Send transportation data
-    const transportation = await storage.getTransportation();
-    sendMessage(ws, 'INITIAL_TRANSPORTATION_DATA', transportation);
-  } catch (err) {
-    console.error('Error sending initial data:', err);
+    // Send initial transportation data
+    const transportationData = await storage.getTransportation();
+    sendMessage(ws, 'transportation_initial', transportationData);
+    
+    // Send initial events data
+    const events = await storage.getEvents();
+    sendMessage(ws, 'events_initial', events);
+  } catch (error) {
+    console.error('Error sending initial data:', error);
   }
 }
 
 async function simulateTransportationMovement(wss: WebSocketServer) {
-  try {
-    const transportation = await storage.getTransportation();
-    
-    // Update each transportation with a simulated movement
-    for (const transport of transportation) {
-      // Simple simulation - small random movement
-      const currentLat = transport.currentLocation?.latitude || 0;
-      const currentLng = transport.currentLocation?.longitude || 0;
+  setInterval(async () => {
+    try {
+      const transports = await storage.getTransportation();
       
-      const newLocation = {
-        latitude: currentLat + (Math.random() * 0.001 - 0.0005),
-        longitude: currentLng + (Math.random() * 0.001 - 0.0005)
-      };
-      
-      const updatedTransport = await storage.updateTransportationLocation(transport.id, newLocation);
-      
-      // Update estimated arrival time
-      const newArrival = new Date();
-      newArrival.setMinutes(newArrival.getMinutes() + Math.floor(Math.random() * 10) + 1);
-      
-      // Broadcast the update
-      broadcastTransportationUpdate(wss, updatedTransport);
+      for (const transport of transports) {
+        // Only process transports with valid current location
+        if (transport.currentLocation && 
+           typeof transport.currentLocation.latitude === 'number' && 
+           typeof transport.currentLocation.longitude === 'number') {
+          // Create a small random movement
+          const latChange = (Math.random() - 0.5) * 0.0005;
+          const lngChange = (Math.random() - 0.5) * 0.0005;
+          
+          const newLocation = {
+            latitude: transport.currentLocation.latitude + latChange,
+            longitude: transport.currentLocation.longitude + lngChange
+          };
+          
+          // Update the transport location
+          const updatedTransport = await storage.updateTransportationLocation(transport.id, newLocation);
+          
+          // Broadcast the update to all connected clients
+          broadcastTransportationUpdate(wss, updatedTransport);
+        }
+      }
+    } catch (error) {
+      console.error('Error simulating transportation movement:', error);
     }
-  } catch (err) {
-    console.error('Error simulating transportation movement:', err);
-  }
+  }, 5000); // Update every 5 seconds
 }
