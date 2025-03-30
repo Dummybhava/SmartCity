@@ -25,60 +25,102 @@ export default function TransportationPage() {
     }
   }, [initialTransportation]);
 
-  // Set up WebSocket connection
+  // Set up WebSocket connection with reconnection logic
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    let reconnectInterval: number | undefined;
+    let ws: WebSocket | null = null;
     
-    socketRef.current = new WebSocket(wsUrl);
-    
-    socketRef.current.onopen = () => {
-      console.log("WebSocket connection established");
-      // Subscribe to transportation updates
+    const connectWebSocket = () => {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${protocol}//${window.location.host}/ws`;
+      
+      // Clear any existing socket
       if (socketRef.current?.readyState === WebSocket.OPEN) {
-        socketRef.current.send(JSON.stringify({ 
-          type: "SUBSCRIBE_TRANSPORTATION"
-        }));
+        socketRef.current.close();
       }
-    };
-    
-    socketRef.current.onmessage = (event) => {
+      
       try {
-        const message = JSON.parse(event.data);
+        ws = new WebSocket(wsUrl);
+        socketRef.current = ws;
         
-        if (message.type === "TRANSPORTATION_UPDATE") {
-          // Update the specific transportation item
-          setTransportationData(prevData => 
-            prevData.map(item => 
-              item.id === message.payload.id ? message.payload : item
-            )
-          );
-        } else if (message.type === "INITIAL_TRANSPORTATION_DATA") {
-          // Set initial data if not already set
-          if (!transportationData.length) {
-            setTransportationData(message.payload);
+        ws.onopen = () => {
+          console.log("WebSocket connection established");
+          // Clear any reconnect interval if it exists
+          if (reconnectInterval) {
+            clearInterval(reconnectInterval);
+            reconnectInterval = undefined;
           }
-        }
+          
+          // Subscribe to transportation updates
+          if (ws?.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ 
+              type: "SUBSCRIBE_TRANSPORTATION"
+            }));
+          }
+        };
+        
+        ws.onmessage = (event) => {
+          try {
+            const message = JSON.parse(event.data);
+            
+            if (message.type === "TRANSPORTATION_UPDATE") {
+              // Update the specific transportation item
+              setTransportationData(prevData => 
+                prevData.map(item => 
+                  item.id === message.payload.id ? message.payload : item
+                )
+              );
+            } else if (message.type === "INITIAL_TRANSPORTATION_DATA") {
+              // Set initial data
+              console.log("Received initial transportation data:", message.payload);
+              setTransportationData(message.payload);
+            }
+          } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+          }
+        };
+        
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          // Don't try to reconnect here, wait for onclose
+        };
+        
+        ws.onclose = (event) => {
+          console.log(`WebSocket closed with code: ${event.code}, reason: ${event.reason}`);
+          
+          // Only try to reconnect if we don't already have a reconnect interval
+          if (!reconnectInterval) {
+            console.log("Setting up reconnection...");
+            reconnectInterval = window.setInterval(() => {
+              console.log("Attempting to reconnect WebSocket...");
+              connectWebSocket();
+            }, 5000); // Try to reconnect every 5 seconds
+          }
+        };
       } catch (error) {
-        console.error("Error parsing WebSocket message:", error);
+        console.error("Error creating WebSocket:", error);
       }
     };
     
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-    
-    socketRef.current.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
+    // Initial connection
+    connectWebSocket();
     
     // Clean up WebSocket connection
     return () => {
       if (socketRef.current?.readyState === WebSocket.OPEN) {
-        socketRef.current.send(JSON.stringify({ 
-          type: "UNSUBSCRIBE_TRANSPORTATION"
-        }));
+        try {
+          socketRef.current.send(JSON.stringify({ 
+            type: "UNSUBSCRIBE_TRANSPORTATION"
+          }));
+        } catch (error) {
+          console.error("Error sending unsubscribe message:", error);
+        }
         socketRef.current.close();
+      }
+      
+      // Clear any reconnect interval
+      if (reconnectInterval) {
+        clearInterval(reconnectInterval);
       }
     };
   }, []);
@@ -172,6 +214,8 @@ function TransportationCard({
   icon: React.ReactNode;
 }) {
   const statusColor = () => {
+    if (!transport.status) return 'bg-gray-500';
+    
     switch (transport.status.toLowerCase()) {
       case 'active':
         return 'bg-green-500';
@@ -199,7 +243,7 @@ function TransportationCard({
             <div>
               <CardTitle className="flex items-center gap-2">
                 {transport.name}
-                <Badge className={statusColor()}>{transport.status}</Badge>
+                <Badge className={statusColor()}>{transport.status || 'Unknown'}</Badge>
               </CardTitle>
               <CardDescription>{transport.type}</CardDescription>
             </div>
