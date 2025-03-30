@@ -170,6 +170,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User Preferences API
+  app.put("/api/user/preferences", async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const updatedUser = await storage.updateUserPreferences(req.user.id, req.body);
+      res.json(updatedUser);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // Notifications API
   app.get("/api/notifications", async (req, res, next) => {
     if (!req.isAuthenticated()) {
