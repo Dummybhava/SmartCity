@@ -9,7 +9,15 @@ type WebSocketMessage = {
 };
 
 export function setupWebSocketServer(httpServer: Server) {
-  const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
+  // Set up WebSocket server with explicit path and additional logging
+  console.log("Setting up WebSocket server on path /ws");
+  const wss = new WebSocketServer({ 
+    server: httpServer, 
+    path: '/ws',
+    // Add more permissive options
+    perMessageDeflate: false,
+    clientTracking: true 
+  });
 
   wss.on('connection', (ws: WebSocket) => {
     console.log('WebSocket client connected');
@@ -20,15 +28,15 @@ export function setupWebSocketServer(httpServer: Server) {
         
         switch (data.type) {
           case 'SUBSCRIBE_TRANSPORTATION':
-            // Subscribe client to transportation updates
-            ws.on('transportationUpdate', (transportationData) => {
-              sendMessage(ws, 'TRANSPORTATION_UPDATE', transportationData);
-            });
+            console.log('Client subscribed to transportation updates');
+            // Store some data to mark the client as subscribed
+            (ws as any).isSubscribedToTransportation = true;
+            // Send current transportation data immediately
+            sendInitialData(ws);
             break;
             
           case 'UNSUBSCRIBE_TRANSPORTATION':
-            // Unsubscribe client from transportation updates
-            ws.removeAllListeners('transportationUpdate');
+            // No specific action needed as we'll broadcast to all clients
             break;
             
           case 'UPDATE_TRANSPORTATION_LOCATION':
@@ -58,8 +66,8 @@ export function setupWebSocketServer(httpServer: Server) {
 
     ws.on('close', () => {
       console.log('WebSocket client disconnected');
-      // Clean up listeners
-      ws.removeAllListeners('transportationUpdate');
+      // Clean up any subscriptions if needed
+      (ws as any).isSubscribedToTransportation = false;
     });
 
     // Send initial data
@@ -85,8 +93,11 @@ function sendMessage(ws: WebSocket, type: string, payload: any) {
 function broadcastTransportationUpdate(wss: WebSocketServer, transportationData: any) {
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      // Use the event emitter pattern to notify subscribers
-      client.emit('transportationUpdate', transportationData);
+      // Send the message directly instead of using emit
+      client.send(JSON.stringify({
+        type: 'TRANSPORTATION_UPDATE',
+        payload: transportationData
+      }));
     }
   });
 }
