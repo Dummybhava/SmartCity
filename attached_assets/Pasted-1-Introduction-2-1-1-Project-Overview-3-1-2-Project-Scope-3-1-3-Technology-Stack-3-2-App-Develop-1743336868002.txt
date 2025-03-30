@@ -1,0 +1,645 @@
+1 Introduction 2
+1.1 Project Overview 3
+1.2 Project Scope 3
+1.3 Technology Stack 3
+2 App Development 4
+2.1 Android app development 4
+2.2 iOS app development 4
+3 Solution Overview 5
+3.1 Key Components 5
+3.2 Features and Functionality 6
+3.2.1 Login &amp; Roles 6
+3.2.2 Multi Language Support 7
+3.2.3 Dynamic Content Management 7
+3.2.4 Feedbacks 8
+3.2.5 Notifications 8
+3.2.6 Online &amp; Offline Maps 9
+3.2.7 Autocomplete/POI Search 9
+3.2.8 Profile Management 9
+3.2.8.1 User Profile Customization 9
+3.2.8.2 Privacy Settings 9
+3.2.9 User Management through Web Interface 10
+3.2.10 App Help 11
+3.2.11 Social Media Integrations 11
+3.2.12 Attractions 11
+3.2.12.1 Food &amp; Beverage/ Retailers 12
+3.2.12.2 Self-guided Tour 12
+3.2.13 Transportation and Routes 14
+3.2.13.1 PRT Tracking Integration 14
+3.2.13.2 Courtesy Cars and Shuttles Integration 14
+3.2.13.2.1 Tablet and Software Components for Courtesy Cars and Shuttle 15
+3.2.13.2.1.1 Real-Time Driver Location Tracking 15
+3.2.13.2.1.2 Driver Acceptance and Navigation 15
+3.2.13.2.1.3 User-Accessible Driver Location 15
+3.2.13.2.1.4 Reliable and Resilient Connectivity 16
+3.2.13.2.1.5 User-Friendly Interface 16
+3.2.13.3 Public Bus Routes Integration 16
+3.2.13.4 Interactive Maps and directions 16
+3.2.13.4.1 Map Functionality 16
+3.2.13.4.2 Directions 16
+3.2.14 Events 17
+3.2.14.1 Event Listing and Details 18
+
+2
+
+3.2.14.2 Interactive Map and directions 18
+3.2.14.3 Comprehensive Event Information 18
+3.2.14.4 Event Notifications 18
+3.2.15 Contact Features 18
+3.2.15.0.1 Incident Reporting 18
+3.2.16 Security 19
+3.2.16.0.1 Secure Code Implementation 19
+3.2.16.0.2 Encrypted Data Transmission 19
+3.2.16.0.3 Authorised API Integration 19
+3.2.16.0.4 Multi-Layered Authentication 19
+3.2.16.0.5 Utilisation of Best Cryptography Tools and Techniques 19
+3.2.16.0.6 Rigorous Penetration Testing and Security Checks 19
+4 Risk Assessment and Mitigation 20
+4.1 Data Security and Privacy Risks 20
+4.2 Integration Challenges 20
+4.3 Scope Creep 20
+4.4 Performance and Scalability 20
+4.5 Project Delays 21
+5 Way of Working 21
+6 Project Management Approach 21
+7 Custom Design for Smart city App 21
+8 Server Requirements 21
+9 Milestones 21
+9.1 M1 - Registration &amp; Login 21
+9.2 M2 - Multi language support &amp; Attraction List 22
+9.3 M3 - Profile,Role and Notifications 22
+9.4 M4 - Event List / Food &amp; Beverages 23
+9.5 M5 - Self Guided Tour 23
+9.6 M6 Transportation &amp; Routes 24
+9.7 M7 Public Transport &amp; Directions 25
+9.8 M8 Feedback, Incident &amp; Contact Support 25
+9.9 M9 - Testing &amp; Doc Submissions 25
+
+1 Introduction
+Dear [Client&#39;s Name],
+We are thrilled to submit this comprehensive proposal to develop a cutting-edge mobile application
+and web portal for Smart City. As a pioneering sustainable urban community and a world-class
+
+3
+technology and innovation hub, Smart City&#39;s commitment to economic, social, and environmental
+sustainability aligns perfectly with our vision of creating innovative solutions for a more sustainable
+future.
+1.1 Project Overview
+The goal of this project is to create a dynamic and user-friendly mobile application and web portal
+for Smart City, providing residents, visitors, and stakeholders with an unparalleled experience. The
+application and portal will be designed to enhance communication, convenience, information
+accessibility, and community engagement within the city.
+1.2 Project Scope
+Our solution encompasses the following key components:
+1. Mobile Application (iOS and Android): A powerful mobile app that seamlessly connects
+users to the various amenities and services offered in Smart City. Users can explore
+attractions, access real-time transportation information, stay updated on city events, and
+enjoy personalised profiles with preferences.
+2. Supporting Web Portal: An intuitive web portal equipped with an admin panel, data
+analytics, and a content management system. The portal will allow administrators to
+manage app content efficiently, analyse user behaviour, and maintain web content
+effortlessly.
+3. Interface with Third-Party Systems: Seamless integration with social media platforms,
+transportation systems, and other third-party services will enhance user experience and
+engagement.
+1.3 Technology Stack
+
+Module Name Technology
+Android App Kotlin/Java
+IOS app Swift
+Web Interface React JS
+Admin-Backend Node JS, mongodb, mysql, sitecore(Content management)
+Data processing/cleaning Python, C++
+Routing Backend Python, C++
+
+4
+
+Search backend Java
+
+2 App Development
+The proposed mobile application will be done as a native mobile application on both Android &amp; iOS
+latest versions. All the APIs will be end to end encrypted to ensure maximum safety. The apps will be
+developed using MVVM + Clean Architecture with use case driven design pattern which will be
+beneficial during the testing process and future enhancement
+2.1 Android app development
+The android app will be developed in Kotlin which will support until the latest android version during
+the final app release. The current version of android in the market is AndroidOS 13.
+Language - Kotlin/Java
+Min Supported Version - AndroidOS 10
+Max Supported Version - AndroidOS 13
+2.2 iOS app development
+The iOS app will be developed in Swift/SwiftUI which will support until the latest iOS release
+Language - Swift UI/Swift
+MIn Supported Version - iOS Version 11/iOS Version 13.
+Max Supported Version - iOS 16 (17 to be released soon).
+3 Solution Overview
+
+5
+
+Our comprehensive solution is designed to elevate the experience of Smart City&#39;s stakeholders
+through improved communication, convenience, and community engagement.
+3.1 Key Components
+1. Mobile Application (iOS and Android)
+
+The Mobile Application serves as the cornerstone of our solution,
+providing a user-friendly interface for residents and visitors of Smart
+City. It empowers users to explore attractions, receive real-time
+transportation updates, stay informed about events, and personalise
+their profiles for a tailored experience.
+2. Web Portal (Built with ReactJS)
+Our Web Portal, built with ReactJS, complements the mobile app,
+offering an intuitive and interactive platform accessible from various
+devices. The web portal acts as a central interface for controlling
+notifications, managing users etc
+3. Backend Infrastructure (Node.js, MongoDB, MySQL)
+The robust Backend Infrastructure, powered by Node.js, integrates
+MongoDB for unstructured data and MySQL for structured data. This
+ensures scalability, flexibility, and data integrity, essential for
+managing diverse data requirements.
+
+4. WebSocket Service
+
+6
+The WebSocket Service enables real-time communication, providing instant updates and interactive
+features for both the app and web portal. Users can stay connected and receive dynamic
+information from Smart City in real-time.
+5. Routing Server, Search Server, and Tiles Server
+The Routing Server optimises navigation within Smart City, offering efficient route planning. The
+Search Server ensures quick and relevant data retrieval, enhancing user convenience. The Tiles
+Server provides seamless and detailed maps, facilitating smooth navigation.
+6. Sitecore Integration
+Our solution seamlessly integrates with the Sitecore Content Management System, enabling efficient
+content management and synchronisation. Content updates made through Sitecore reflect across
+the app and web portal, ensuring timely and consistent information for users.
+7. Transportation System Integration
+We integrate Smart City&#39;s transportation system into the mobile app, providing real-time updates on
+public transit, courtesy cars, and shuttles. This integration ensures an enhanced user experience and
+easy access to transportation services..
+
+3.2 Features and Functionality
+In this section, we present a concise overview of the key features and functionalities that our
+proposed software solutoffer. Our comprehensive set of features has been thoughtfully designed to
+address your specific needs and requirements, ensuring a seamless and tailored user experience.
+Each feature is meticulously crafted to align with your objectives, enhance operational efficiency,
+and elevate customer satisfaction. With a focus on usability, scalability, and security, our software
+solution promises to deliver tangible business impact and contribute to your organisation&#39;s success
+3.2.1 Login &amp; Roles
+
+Smart city mobile application will have a seamless Login &amp; Roles feature,
+allowing users to register via Facebook, Gmail, or custom
+username/password methods. Facebook or Gmail registration integrates
+relevant data into user profiles with user acceptance. Once logged in,
+users remain authenticated unless manually logged out. The app
+supports role-based access control, accommodating multiple roles per
+user for versatile and secure interactions. Passwords are one-way
+encrypted, ensuring data privacy and protection.
+
+7
+
+The Login &amp; Roles feature is implemented using industry-leading authentication protocols and
+encryption methods to ensure robust security. OAuth2.0 is employed for seamless integration with
+Facebook and Gmail, safeguarding user privacy. Custom authentication relies on one-way encryption
+to securely store passwords, preventing unauthorised access. Role-based access control is
+implemented with well-defined permissions and access levels, ensuring controlled user interactions.
+The entire feature is optimised for efficient performance and seamless user experience on both iOS
+and Android platforms.
+
+3.2.2 Multi Language Support
+Our software solution will be designed with a flexible architecture to support Multi-Language
+functionality for the mobile application and web portal. Initially available in English, the system can
+easily accommodate additional languages in future phases. Administrators will have the capability to
+manage language options within the web portal, ensuring a tailored and user-friendly experience for
+Smart City&#39;s diverse audience. Users can select their preferred language, and the system will
+seamlessly present content, notifications, and interfaces in their chosen language. The architecture
+also facilitates easy integration with translation services, allowing for efficient content localization as
+needed. With Multi-Language Support, our solution ensures inclusivity and scalability for Smart
+City&#39;s User base.
+3.2.3 Dynamic Content Management
+The Dynamic Content Management feature, empowering administrators to update app content in
+real-time. Through Sitecore, the user-friendly CMS, administrators can effortlessly configure and
+customise dynamic images and textual content. The Node.js backend establishes an efficient API
+connection with Sitecore, ensuring immediate content synchronisation. This feature enables
+personalised experiences, multilingual support, and seamless content updates, keeping the app
+fresh, engaging, and up-to-date for Smart City&#39;s users.
+To ensure optimal map performance and minimise data transfer, the map contents will not be
+managed within the Sitecore content management system. Instead, we will implement a data
+
+8
+pipeline that updates the maps with new data and generates map tiles within a 24-hour period. This
+approach enhances map loading speed contributing to a seamless and efficient mapping experience
+within Smart City.
+3.2.4 Feedbacks
+Our software solution enables users to provide feedback through the mobile application using a
+dedicated Feedback screen. All received feedback is securely stored in the web portal and users can
+have a real-time status track of feedback, allowing for centralised review and analysis. User
+engagement through feedback empowers Smart City to make data-driven decisions and
+continuously enhance the user experience. The process ensures privacy and anonymity, fostering
+open and honest feedback from users. The seamless implementation of feedback submission API
+ensures secure data transmission and storage. With User Feedback, our solution promotes a user-
+centric community and facilitates continuous improvement.
+
+3.2.5 Notifications
+The smart city app will be equipped with a powerful Push Notifications feature, designed to enhance
+communication and keep users informed about important news and updates from Smart City. With
+real-time push notifications triggered for specific defined actions, such as news updates and
+announcements,
+
+9
+Through seamless API integration, push notifications are delivered in real-time to users&#39; devices,
+providing prompt updates and timely communication. User authentication and authorization ensure
+that notifications are securely delivered only to registered and authorised users, ensuring data
+privacy and user confidence.
+With personalization options, administrators can customise messages based on user interests and
+demographics, ensuring that users receive relevant and meaningful updates.
+3.2.6 Online &amp; Offline Maps
+Our mobile application will offer GIS/map functionality in both online and offline modes, based on
+user preferences. Users can easily switch between modes, ensuring access to real-time map data
+with an internet connection and pre-downloaded maps without one. We will implement this feature
+using the custom Maps SDK, guaranteeing a seamless and reliable navigation experience for users on
+iOS and Android platforms.
+
+3.2.7 Autocomplete/POI Search
+The app will incorporate a custom search SDK, empowering the Autocomplete/POI feature with
+advanced capabilities. Leveraging this specialised software development kit, users experience a
+seamless search process, with real-time suggestions and accurate results. The custom search SDK
+ensures efficient integration and optimal performance, enhancing the overall user experience within
+Smart City.
+3.2.8 Profile Management
+3.2.8.1 User Profile Customization
+1. Users can create and update their basic profile details, including full name, title, image,
+and company information.
+2. The Profile Management feature ensures that users can represent themselves accurately
+and professionally.
+3.2.8.2 Privacy Settings
+1. Users have the option to set their profile details as either public or private, based on their
+desired level of visibility.
+2. Privacy settings allow users to control who can view specific elements of their profile.
+3. For added flexibility, the feature includes a Delete Profile option, enabling users to remove
+their profiles if needed.
+
+3.2.9 User Management through Web Interface
+
+10
+
+The web interface will offer an efficient User Management capability that allows administrators to
+enable or disable registered users as needed. Through the web portal, administrators can access a
+comprehensive user management dashboard, granting them full control over user accounts and
+access.
+With this feature, administrators can easily enable new users upon registration, ensuring seamless
+onboarding into the Smart City community. Similarly, the ability to disable user accounts when
+necessary provides an essential security measure, allowing administrators to swiftly address any
+concerns related to user behaviour or data privacy.
+The User Management feature streamlines the process of overseeing user registrations, enhancing
+the overall management and security of the platform. Our web interface&#39;s intuitive design and
+functionalities empower administrators to maintain a safe and inclusive environment, fostering a
+positive user experience for all stakeholders within Smart City.
+
+3.2.10 App Help
+The smart city mobile application incorporates an Interactive Application Help feature, providing
+users with user-friendly guidance and support. The help content is dynamically integrated with the
+web portal&#39;s Sitecore CMS, enabling real-time updates and seamless content management. Users
+can access relevant assistance within the app, fostering a smooth and intuitive user experience
+throughout their journey within Smart City&#39;s mobile application.
+
+11
+
+3.2.11 Social Media Integrations
+Our software solution will seamlessly integrate the mobile application with Smart City&#39;s social media
+platforms, including Facebook, Twitter, LinkedIn etc. This integration will enable users to easily
+connect with Smart City&#39;s social media networks, stay updated with the latest news and events, and
+actively engage with the community. A detailed list of the specific social media platforms to be
+integrated will be provided during the project analysis phase, ensuring a tailored and cohesive user
+experience within Smart City&#39;s vibrant online community.
+3.2.12 Attractions
+
+The smart city mobile application will showcase an engaging Attractions feature, presenting rich
+text, static images, and map locations to enhance user experience. Content is dynamically managed
+through the web portal&#39;s Sitecore CMS, ensuring real-time updates and seamless integration with
+the app. Users can explore Smart City&#39;s points of interest with confidence, utilising interactive maps
+with both voice and visual directions in online and offline modes.
+
+3.2.12.1 Food &amp; Beverage/ Retailers
+The mobile application will offer a dedicated section for Food &amp; Beverage and Retail options around
+Smart City. Users can conveniently discover nearby dining and shopping opportunities, with content
+dynamically managed through the web portal&#39;s Sitecore CMS for up-to-date information. This
+feature enhances the user experience, allowing visitors to make informed choices during their time
+in Smart City.
+
+12
+
+3.2.12.2 Self-guided Tour
+
+The mobile application will offer a self guided tour, which will allow travellers to explore various
+destinations in Smart City at their own pace, offering curated routes, informative audio guides, and
+interactive maps
+Interactive Maps: The app will feature interactive, GPS-enabled maps that guide users along the
+designated routes. The maps will show real-time user location, highlight points of interest, and
+provide directions to help users navigate with ease.
+Audio Guides: To enhance the experience, the app will provide audio guides for each point of
+interest along the route. Users can listen to informative and engaging commentary, bringing history
+and local stories to life as they explore the area.
+Offline Accessibility: The app will offer offline access to the maps using custom maps SDK and audio
+guides once users have downloaded their chosen walking tour beforehand.
+Points of Interest Information: The app will provide users a thorough understanding of the places
+they visit by providing detailed information, including historical context, interesting facts, and useful
+suggestions, for each landmark or attraction
+
+13
+
+3.2.13 Transportation and Routes
+
+Our software solution includes a comprehensive Transportation and Routes feature, providing users
+with seamless access to various transportation options within Smart City.
+
+14
+
+To achieve this, we will implement the following
+3.2.13.1 PRT Tracking Integration
+1. We will establish an API integration with the existing PRT tracking system to access real-time
+PRT vehicle data, including timings, positions, arrivals, and departures.
+2. The mobile application will fetch this data through the API, allowing users to track PRT
+vehicles and receive up-to-date information on the nearest station.
+3.2.13.2 Courtesy Cars and Shuttles Integration
+1. For courtesy cars and shuttles, we will develop a custom API that connects the mobile
+application with the tracking and ordering system.
+2. The API will facilitate real-time communication between the app and the vehicles, allowing
+users to track the location of courtesy cars and shuttles and request pickups.
+
+3.2.13.2.1 Tablet and Software Components for Courtesy Cars and Shuttle
+To facilitate a seamless user experience for courtesy cars and shuttle services, we propose
+developing a dedicated mobile application for drivers. The application will serve as a comprehensive
+tool to efficiently manage and fulfil user requests. The key features of this app include:
+3.2.13.2.1.1 Real-Time Driver Location Tracking
+
+15
+The app will continuously track the real-time location of the drivers, providing users with accurate
+updates on the approaching vehicle&#39;s location and estimated time of arrival. This ensures
+transparency and eliminates uncertainty for users.
+3.2.13.2.1.2 Driver Acceptance and Navigation
+When a user places a request, drivers will receive notifications through the app. They can promptly
+accept requests and navigate to the user&#39;s location using the built-in navigation feature. This
+seamless integration expedites response times and enhances user satisfaction.
+3.2.13.2.1.3 User-Accessible Driver Location
+For added convenience, users will have access to the real-time location of the approaching driver
+through the app. This feature empowers users to track the driver&#39;s progress and prepare for pick-up.
+3.2.13.2.1.4 Reliable and Resilient Connectivity
+The app will be developed with a focus on reliability, ensuring smooth functionality even in areas
+with varying network coverage.
+3.2.13.2.1.5 User-Friendly Interface
+The app will feature an intuitive and user-friendly interface, enabling drivers to easily manage
+incoming requests and navigate to user locations without any technical complexity.
+
+3.2.13.3 Public Bus Routes Integration
+1. To present public bus routes, stations, and timings on the map, we will integrate with the
+public transportation authority&#39;s data source.
+2. This integration will enable the mobile application to fetch and display real-time public bus
+information for users to plan their routes effectively.
+
+3.2.13.4 Interactive Maps and directions
+3.2.13.4.1 Map Functionality
+
+16
+
+The map feature will be implemented using custom maps SDK which supports online and offline
+modes. For offline functionality, we will implement map downloads, allowing users to access map
+data even without an internet connection.
+3.2.13.4.2 Directions
+Voice and visual directions for directions will be achieved using the custom maps SDK. Users will
+receive step-by-step instructions and visual cues to guide them to their desired destinations.
+Note : Integrating traffic into directions is not in the scope of the project, however if data can be
+provided we can integrate into directions.
+
+3.2.14 Events
+
+17
+
+Our software solution includes a comprehensive Events feature, providing users with access to an
+engaging list of events within Smart City. The Events feature is designed with user-friendly
+interfaces, rich text descriptions, static images, and map locations for enhanced user experience. Key
+aspects of this feature include:
+
+3.2.14.1 Event Listing and Details
+1. The mobile application will present a list of upcoming events, including rich text descriptions,
+static images, and map locations for each event.
+2. The event list will be dynamically maintained through the web portal&#39;s content management
+system (sitecore), ensuring real-time updates and seamless integration with the app.
+3.2.14.2 Interactive Map and directions
+1. The Events feature will incorporate an interactive map using custom-Maps SDK, offering
+voice and visual directions to guide users to event locations.
+2. Users can conveniently access directions both online and offline, ensuring smooth navigation
+to event venues.
+3.2.14.3 Comprehensive Event Information
+1. Event details will include comprehensive information such as event title, description, agenda
+with timings, speaker(s), and sponsor(s) details.
+2. All event content will be managed and maintained through the web portal&#39;s CMS, allowing
+for dynamic presentation within the mobile application.
+
+18
+
+3.2.14.4 Event Notifications
+1. Updates to the event list or event details will trigger event notifications, which will be sent
+to all registered users of the mobile application.
+2. Users will receive timely alerts, ensuring they stay informed about the latest event
+information and updates.
+
+3.2.15 Contact Features
+The smart mobile application will empower users to easily contact the help desk for various inquiries
+and assistance. Whether through the app or via phone, users can reach out to Smart City&#39;s
+personnel, seeking prompt and reliable support. To ensure effective communication, Smart City
+personnel will respond to user queries through the web portal and/or email. The integration of this
+feature enhances user engagement, fostering an accessible and responsive platform.
+3.2.15.0.1 Incident Reporting
+In the event of incidents, users will be able to report the issue through the smart city application,
+providing relevant details for immediate attention. The help desk personnel will promptly respond to
+incident reports through the web portal, ensuring efficient incident resolution and user satisfaction.
+All communications related to the reported incident will be saved and presented within the mobile
+application, ensuring transparency and visibility throughout the process. Additionally, users will
+receive email updates regarding the incident&#39;s progress and resolution, keeping them informed at
+every stage.
+3.2.16 Security
+Our software solution prioritises robust security protocols for both the mobile application and
+backend infrastructure. This ensures protection against unauthorised access and data breaches,
+fostering a safe environment for users within Smart City.
+3.2.16.0.1 Secure Code Implementation
+Our development team follows secure coding practices to eliminate vulnerabilities and maintain the
+highest level of security in the application&#39;s codebase.
+3.2.16.0.2 Encrypted Data Transmission
+Sensitive data transmitted between the app and backend is encrypted using advanced encryption
+algorithms, safeguarding information from interception or unauthorised access.
+3.2.16.0.3 Authorised API Integration
+
+19
+We strictly adhere to working with authorised APIs only, mitigating potential security risks
+associated with untrusted or unauthorised sources.
+
+3.2.16.0.4 Multi-Layered Authentication
+To ensure enhanced security, we implement multi-layered authentication mechanisms, allowing
+access only to authorised users for sensitive features and data.
+
+3.2.16.0.5 Utilisation of Best Cryptography Tools and Techniques
+Our solution incorporates best-in-class cryptography tools and techniques, ensuring data integrity
+and confidentiality for enhanced protection against unauthorised access or data tampering.
+
+3.2.16.0.6 Rigorous Penetration Testing and Security Checks
+Our solution undergoes comprehensive penetration tests and security assessments to proactively
+identify and address potential vulnerabilities, ensuring the application meets the highest security
+standards.
+With a steadfast commitment to data protection, privacy, and system integrity, our security
+measures instil confidence and trust among all users, making Smart City a safe and secure
+environment for everyone.
+
+4 Risk Assessment and Mitigation
+4.1 Data Security and Privacy Risks
+Risk: Potential data breaches or unauthorised access to sensitive user information may pose a
+significant threat to the project&#39;s success and reputation.
+Mitigation: Implement robust security measures, encryption protocols, and regular security audits
+to safeguard user data. Adhere to data protection regulations and best practices to ensure data
+privacy.
+
+4.2 Integration Challenges
+Risk: Integrating with various third-party systems and APIs may encounter technical complexities
+and compatibility issues.
+
+20
+Mitigation: Conduct thorough compatibility testing and engage in early communication with third-
+party providers to address any integration challenges. Employ experienced developers with
+expertise in API integration to ensure smooth interactions.
+
+4.3 Scope Creep
+Risk: Expanding project scope without proper control may lead to delays, resource overutilization,
+and budget constraints.
+Mitigation: Define a well-documented scope of work at the outset and establish a formal change
+management process. Regularly communicate with stakeholders to manage expectations and
+address any scope changes efficiently.
+
+4.4 Performance and Scalability
+Risk: High user traffic or increased data volume may lead to performance bottlenecks or scalability
+issues.
+Mitigation: Conduct load testing and performance tuning during development to ensure the
+application&#39;s responsiveness and scalability. Leverage cloud-based infrastructure to accommodate
+growing demands.
+4.5 Project Delays
+Risk: Unforeseen circumstances, resource constraints, or external factors may cause project delays.
+Mitigation: Set realistic timelines, establish clear communication channels with stakeholders, and
+proactively address potential obstacles to keep the project on track.
+
+5 Way of Working
+Our approach to the Smart City project is based on client-centric collaboration, Agile methodology,
+and transparency. We prioritise quality assurance, adhere to timelines, and maintain clear
+communication. With an expert team and continuous improvement mindset, we are committed to
+delivering a high-quality, sustainable solution. Post-delivery support ensures seamless operation
+beyond project completion.
+
+6 Project Management Approach
+We embrace an Agile project management approach, emphasising flexibility, incremental updates,
+and client feedback. Our iterative process allows us to respond swiftly to changing requirements,
+ensuring a successful and adaptable project outcome.
+
+21
+
+7 Custom Design for Smart city App
+Our app boasts a custom design that reflects Smart City&#39;s unique brand identity, ensuring a visually
+appealing and user-centric experience. With a focus on accessibility and mobile responsiveness, the
+design offers a seamless and cohesive interface across devices.
+
+9 Milestones
+9.1 M1 - Registration &amp; Login
+
+S.No Task Hours
+1 Login UI + Integration
+2 Registration Ui + Integration
+3 Login – API Development
+4 Registration – API Development
+5 Web interface - Profile Management and Login
+6 Testing
+7 Design prototypes
+
+9.2 M2 - Multi language support &amp; Attraction List
+
+S.No Task Hours
+1 Attractions List UI + Integration
+2 Attractions Details UI + Integration
+3 Multi-Language support
+4 Attractions List API Development (Sitecore Integration)
+5 Attraction Details – API Development
+6. Web interface - Notification Management
+7 Testing
+8 Design prototypes
+
+22
+
+9.3 M3 - Profile,Role and Notifications
+
+S.No Task Hours
+1 Profile UI + Integration
+2 Profile API Development
+3 Role based routing + changes
+4 Role Management – API Development
+5 Notifications API Development
+6 Web interface - Feedback Management
+7 Testing
+8 Design prototypes
+
+9.4 M4 - Event List / Food &amp; Beverages
+
+S.No Task Hours
+1 Events List + Integration
+2 Events API Development
+3 Food &amp; Beverages/ Retailers UI + Integrations
+4 Food &amp; Beverages/ Retailers API Development
+5 Food &amp; Beverage Content Management sitecore
+integration
+6 Testing
+7 Design prototypes
+
+9.5 M5 - Self Guided Tour
+
+23
+
+S.No Task Hours
+1 Self guide UI + Integration
+2 Integration of custom Maps (offline and online)
+3 Self guide functionality Development
+4 Integration of additional POI details to provide detailed
+information
+5 Related API Development
+6 Testing
+7 Design prototypes
+
+9.6 M6 Transportation &amp; Routes
+
+S.No Task Hours
+1 PRT Tracking UI and functionality Development
+2 Integrating with existing PRT API
+3 UI Development for Courtesy cars and Shuttles tracking
+and ordering (User App)
+4 Courtesy cars and shuttle tracking and ordering API
+(User App)
+5 Integration of maps SDK &amp; ride Matching API
+5 UI Development for Courtesy cars and Shuttles Driver
+app
+6 Driver App API Development
+7 Testing
+8 Design prototypes
+
+9.7 M7 Public Transport &amp; Directions
+
+24
+
+S.No Task Hours
+1 Public Transport and direction UI Development
+2 Integration of Public transport Route and Details in
+Routing Engine and related API
+3 UI development to display public transport details
+4 Integration of maps SDK and Directions SDK
+5 Testing
+6 Design prototypes
+
+9.8 M8 Feedback, Incident &amp; Contact Support
+
+S.No Task Hours
+1 Feedback System UI development
+2 Feedback System API Development
+3 Contact and Incident Reporting UI development
+4 Contact and Incident Reporting API Development
+5 Testing
