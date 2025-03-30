@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin, Phone, Clock, Building, Coffee, Museum, Store, Info, Search } from "lucide-react";
+import { MapPin, Phone, Clock, Building, Coffee, Landmark, Store, Info, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AttractionsPage() {
@@ -34,7 +34,7 @@ export default function AttractionsPage() {
   });
 
   // Extract unique categories from attractions
-  const categories = [...new Set(attractions?.map(attraction => attraction.category) || [])];
+  const categories = Array.from(new Set(attractions?.map(attraction => attraction.category) || []));
 
   return (
     <PageContainer title="Attractions">
@@ -111,7 +111,7 @@ function AttractionCard({ attraction }: { attraction: Attraction }) {
       case 'food & beverage':
         return <Coffee className="h-4 w-4" />;
       case 'museum':
-        return <Museum className="h-4 w-4" />;
+        return <Landmark className="h-4 w-4" />;
       case 'retailer':
         return <Store className="h-4 w-4" />;
       case 'education':
